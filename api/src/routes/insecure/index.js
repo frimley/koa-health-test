@@ -8,11 +8,10 @@ dotenv.config();
 
 const router = express.Router();
 
-router.get("/helloworld", async (req, res) => {
-  res.send('{message: "hello world"}');
-});
+// Creates a test session token using a test JWT secret
+// tokens created by this endpoint are not valid for the secure endpoints
 router.get("/setAuthTest", async (req, res) => {
-  const token = jwt.sign({ userId: "abcdefghijklmnopqrstuvwxyz" }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ userId: "abcdefghijklmnopqrstuvwxyz" }, `${process.env.JWT_SECRET}_testing`, {
     expiresIn: process.env.SESSION_TIME_EXPIRATION,
   });
   res.send({ token: token });
