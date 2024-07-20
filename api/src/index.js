@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Add routes to the app
+// Add routes
 app.use(routesInsecure);
 app.use(routesSecure);
 

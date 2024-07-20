@@ -1,10 +1,11 @@
 const express = require("express");
-const auth = require("../../middleware/auth");
+const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-// Verifies an authorization token and returns the encapsulated user data
+// AuthTest
+// Verifies an authorization token and returns the mock account user id
 router.get("/authTest", async (req, res) => {
   const token = req.header("authorization").replace("Bearer ", "");
   try {
