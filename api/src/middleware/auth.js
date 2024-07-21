@@ -1,13 +1,10 @@
 const jwt = require("jsonwebtoken");
-
-const sendUnauthorizedMessage = (res) => {
-  return res.status(401).send({ message: "Unauthorized" });
-};
+const common = require("../common");
 
 module.exports = (req, res, next) => {
   // check the header for the presence of an authorization field
   if (!req.header("authorization")) {
-    sendUnauthorizedMessage(res);
+    common.sendResponse(res, common.httpCodes.UNAUTHORIZED, "Unauthorized");
     return false;
   }
 
@@ -17,6 +14,6 @@ module.exports = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    sendUnauthorizedMessage(res);
+    common.sendResponse(res, common.httpCodes.UNAUTHORIZED, "Unauthorized");
   }
 };

@@ -3,10 +3,8 @@ const jwt = require("jsonwebtoken");
 const common = require("../common");
 const userController = require("../controllers/user");
 const { body, validationResult } = require("express-validator");
-const dotenv = require("dotenv");
 
-// Load config values from .env file
-dotenv.config();
+require("dotenv").config(); // Load config values from .env file
 
 const router = express.Router();
 
@@ -31,7 +29,6 @@ router.post(
   ],
   async (req, res) => {
     try {
-      // const hashedPassword = await bcrypt.hash(req.body.password, 8);
       const errors = validationResult(req);
 
       // If there are validation errors, respond with a 400 Bad Request status
@@ -42,6 +39,32 @@ router.post(
 
       // If submission data is successful, run registration logic
       await userController.registerUser(req, res);
+    } catch (error) {
+      common.sendResponse(res, common.httpCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
+  },
+);
+
+// Name: POST /login
+// Logs in a user and returns a JWT token encapsulating the account user Id (uuid) if successful
+router.post(
+  "/login",
+  [
+    body("username").isLength({ min: 5 }).withMessage("Username is required and must be at least 5 characters long"),
+    body("password").isLength({ min: 8 }).withMessage("Password is required and must be at least 8 characters long"),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+
+      // If there are validation errors, respond with a 400 Bad Request status
+      if (!errors.isEmpty()) {
+        common.sendResponse(res, common.httpCodes.BAD_REQUEST, "Could not login", null, errors.array());
+        return false;
+      }
+
+      // If submission data is successful, run login logic
+      await userController.loginUser(req, res);
     } catch (error) {
       common.sendResponse(res, common.httpCodes.INTERNAL_SERVER_ERROR, error.message);
     }
