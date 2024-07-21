@@ -1,7 +1,7 @@
 const db = require("../db");
 const common = require("../common");
 
-require("dotenv").config(); // Load config values from .env file
+require("dotenv").config(); // Load config values
 
 // Name: registerUser
 // Description: Registers a new user and responses a JWT token encapsulating the account user Id (uuid) if successful

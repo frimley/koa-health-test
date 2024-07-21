@@ -7,6 +7,9 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDefinition = require("../swagger.json");
 const common = require("./common");
 
+// Load environment variables
+request("dotenv").config();
+
 const app = express();
 app.use(express.json());
 
@@ -18,7 +21,7 @@ app.use(routesAdmin);
 // Swagger configuration
 const options = {
   swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
+  // Paths to files containing Swagger definitions
   apis: [`${__dirname}/routes/*.js`],
 };
 const swaggerSpec = swaggerJSDoc(options);
