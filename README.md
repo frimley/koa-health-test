@@ -68,7 +68,7 @@ The API is a simple node.js app using express, express-validator, JWT, mocha/cha
 
 The core config key value pairs are contained in the config file: 
 ```
-`./api/.env`
+./api/.env
 ```
 
 Example:
@@ -96,12 +96,12 @@ Route | Type | Description | Needs session? | Admin Only?
 /admin/activity/{activityId} | GET | Returns an activity | Yes | Yes
 
 
-An admin account has been created upon database creation.  The details are:
+Only an admin account can call the 'admin' methods.  An admin account has been created upon database creation.  The details are:
 ```
 Username: admin16180
 Password: pass16180
 ```
-If the above account is used to login, the session token will allow access to the admin methods above.  This account has an is_admin column = true in table user_account.
+If the above account is used to login, the session token will allow access to the admin methods above.  This account has column is_admin = true in table user_account.
 
 #### Authentication/JWT & Security
 
@@ -120,8 +120,8 @@ An ‘api’ postgres user is created and used by the node.js api.  This user ha
 The node API does not contain inline SQL, it uses postgres functions.  Only having access to functions provides an abstracted layer which gives many benefits:
 
 - Table and column names are irrelevant to the API codebase - the postgres functions have simple input and output parameters
-- The underlying database schema can be changed easily because there is no inline SQL contained in the codebase.  Only the function names and parameters have to remain the same.
-- Performance tuning and query optimisation is much easier when all SQL is within a consistent set of functions.
+- The underlying database schema can be changed easily because only function names and parameters exist in the codebase.
+- Performance tuning and query optimisation is much easier when all SQL is within a consistent set of functions (vs auto-generated SQL in an ORM library for example).
 
 ### Developer mode
 
@@ -192,5 +192,4 @@ The project produces Swagger documentation.  This provides a convenient interfac
 - Login auditing
 - Application performance metrics
 - Dockerize the node.js app
-
 
