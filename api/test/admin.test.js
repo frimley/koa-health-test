@@ -43,11 +43,11 @@ describe("Activity Admin Endpoints", () => {
     const token = resToken.body.token;
 
     const result = await request(app).post("/admin/activity").set("Authorization", `Bearer ${token}`).send({
-      title: "Test Activity",
+      title: "4-7-8 breathing",
       activityCategoryId: 1,
-      durationMinutes: 60,
+      durationMinutes: 5,
       activityDifficultyId: 1,
-      content: "Test content",
+      content: "Breathe in for 4 seconds, hold for 7 seconds, breathe out for 8 seconds. Repeat.",
     });
     expect(result.statusCode).to.equal(common.httpCodes.CREATED);
   });
@@ -61,11 +61,11 @@ describe("Activity Admin Endpoints", () => {
     const token = resToken.body.token;
 
     const result = await request(app).put("/admin/activity/1").set("Authorization", `Bearer ${token}`).send({
-      title: "Test Activity",
+      title: "4-7-8 breathing",
       activityCategoryId: 1,
-      durationMinutes: 60,
+      durationMinutes: 5,
       activityDifficultyId: 1,
-      content: "Test content",
+      content: "Breathe in for 4 seconds, hold for 7 seconds, breathe out for 8 seconds. Repeat.",
     });
     expect(result.statusCode).to.equal(common.httpCodes.CREATED);
   });

@@ -4,8 +4,9 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5433:5432
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: Splendor01
     volumes:
       - ./database_volume:/var/lib/postgresql/data_db
+      - ./sql:/etc/postgresql/sql/
