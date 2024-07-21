@@ -2,7 +2,7 @@
 Test exercise for Koa Health.
 
 A live working example of this API can be found at this URL:
-http://link.earth:3000/docs
+http://213.229.86.134:8080/docs
 
 ## Setup
 
@@ -74,7 +74,7 @@ The core config key value pairs are contained in the config file:
 Example:
 ```
 PORT=3000
-DATABASE_URL=postgres://api:gxuaJk1smioXLjm@localhost:5433/healthy_habits
+DATABASE_URL=postgres://api:gxuaJk1smioXLjm@localhost:5432/healthy_habits
 JWT_SECRET=asdf89sad9fljaskdjfas98dfuasldfjas9d8fyuasdlfjasd
 SESSION_TIME_EXPIRATION=4h
 ```
@@ -183,7 +183,7 @@ These tests connect to the running API like an external client.  An output (hope
 ```
 ### Swagger / OpenAPI
 
-The project produces Swagger documentation.  This provides a convenient interface to test all the methods within the API.
+The project produces Swagger documentation.  This provides a convenient interface to test all the methods within the API and for third parties to connect.
 
 ## TODO
 - More Swagger documentation to define more explicitly return types
