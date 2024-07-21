@@ -40,15 +40,12 @@ describe("Activity Endpoints", () => {
     expect(resToken.body).to.have.property("token").length.to.greaterThan(1);
     const token = resToken.body.token;
 
-    const result = await request(app)
-      .post("/activityComplete")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ activityId: 1 });
+    const result = await request(app).put("/activity/1/complete").set("Authorization", `Bearer ${token}`).send();
     expect(result.statusCode).to.equal(common.httpCodes.CREATED);
   });
 
   it("an activity CANNOT be set as completed by a user not logged in", async () => {
-    const result = await request(app).post("/activityComplete").send({ activityId: 1 });
+    const result = await request(app).put("/activity/1/complete").send();
     expect(result.statusCode).to.equal(common.httpCodes.UNAUTHORIZED);
   });
 

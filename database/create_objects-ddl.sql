@@ -8,7 +8,8 @@ CREATE DATABASE healthy_habits TABLESPACE=healthy_habits_space;
 CREATE EXTENSION pgcrypto;
 
 -- create user for api
-CREATE USER api WITH PASSWORD 'DataAccess0101!';
+CREATE USER api;
+ALTER USER api WITH PASSWORD 'gxuaJk1smioXLjm';
 
 ---------------------
 -- Table creation
@@ -220,4 +221,7 @@ AS $$
 	
 $$ LANGUAGE sql;
 GRANT EXECUTE ON FUNCTION fn_get_completed_activities(uuid) TO api;
+
+
+-- Let's create an admin account for 3rd parties to use to update the activities...
 

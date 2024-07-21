@@ -11,12 +11,12 @@ describe("User Endpoints", () => {
 
   // Requests a test token then sends it back to be resolved to an expected user id
   it("should validate that a session token can be created and then received to infer a user id", async () => {
-    const resToken = await request(app).get("/setAuthTest").send();
+    const resToken = await request(app).get("/createTestToken").send();
     expect(resToken.statusCode).to.equal(common.httpCodes.OK);
     expect(resToken.body).to.have.property("token").length.to.greaterThan(1);
 
     const resTestToken = await request(app)
-      .get("/authTest")
+      .get("/testToken")
       .set("Authorization", `Bearer ${resToken.body.token}`)
       .send();
     expect(resTestToken.statusCode).to.equal(common.httpCodes.OK);
