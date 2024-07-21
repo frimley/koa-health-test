@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS public.user_account
     username text COLLATE pg_catalog."default",
     email text COLLATE pg_catalog."default",
     password text COLLATE pg_catalog."default",
+    is_admin boolean DEFAULT false,
     created_timestamp timestamp without time zone DEFAULT now(),
     CONSTRAINT user_account_pkey PRIMARY KEY (user_account_id)
 )
@@ -98,7 +99,7 @@ TABLESPACE healthy_habits_space;
 ALTER TABLE IF EXISTS public.activity
     OWNER to postgres;
 
-GRANT UPDATE, INSERT, SELECT ON TABLE public.activity TO api;
+GRANT UPDATE, INSERT, SELECT, DELETE ON TABLE public.activity TO api;
 GRANT ALL ON TABLE public.activity TO postgres;
 
 -- user_activity_completed
@@ -181,8 +182,8 @@ AS $$
 		a.content,
 		a.created_timestamp
 	FROM activity a
-	INNER JOIN activity_category ac ON a.activity_category_id = ac.activity_category_id
-	INNER JOIN activity_difficulty ad ON a.activity_difficulty_id = ad.activity_difficulty_id
+	LEFT JOIN activity_category ac ON a.activity_category_id = ac.activity_category_id
+	LEFT JOIN activity_difficulty ad ON a.activity_difficulty_id = ad.activity_difficulty_id
 	ORDER BY
 		ac.name
 	
@@ -211,8 +212,8 @@ AS $$
 		a.content,
 		uac.created_timestamp
 	FROM activity a
-	INNER JOIN activity_category ac ON a.activity_category_id = ac.activity_category_id
-	INNER JOIN activity_difficulty ad ON a.activity_difficulty_id = ad.activity_difficulty_id
+	LEFT JOIN activity_category ac ON a.activity_category_id = ac.activity_category_id
+	LEFT JOIN activity_difficulty ad ON a.activity_difficulty_id = ad.activity_difficulty_id
 	INNER JOIN user_activity_completed uac ON uac.activity_id = a.activity_id
 	WHERE 
 		uac.user_account_id = p_user_account_id
@@ -223,5 +224,123 @@ $$ LANGUAGE sql;
 GRANT EXECUTE ON FUNCTION fn_get_completed_activities(uuid) TO api;
 
 
--- Let's create an admin account for 3rd parties to use to update the activities...
+-- Set activity (create and update activities)
+
+CREATE OR REPLACE FUNCTION public.fn_set_activity(
+	p_user_account_id uuid,
+	p_activity_id bigint,
+	p_title text,
+	p_activity_category_id integer,
+	p_duration_minutes integer,
+	p_activity_difficulty_id integer,
+	p_content text)
+    RETURNS bigint
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+	l_activity_id bigint = 0;
+BEGIN
+	-- Check that this user is an admin
+	IF( NOT EXISTS(SELECT * FROM user_account WHERE user_account_id = p_user_account_id AND is_admin=true) )THEN
+		RETURN 0;
+	END IF;
+	
+	IF p_activity_id > 0 THEN
+		UPDATE activity
+		SET 
+			title=p_title,
+			activity_category_id=p_activity_category_id,
+			duration_minutes=p_duration_minutes,
+			activity_difficulty_id=p_activity_difficulty_id,
+			content=p_content
+		WHERE
+			activity_id=p_activity_id;
+
+		SELECT p_activity_id INTO l_activity_id;
+	ELSE
+		INSERT INTO activity (title, activity_category_id, duration_minutes, activity_difficulty_id, content, created_by_user_account_id)
+		VALUES (p_title, p_activity_category_id, p_duration_minutes, p_activity_difficulty_id, p_content, p_user_account_id) RETURNING activity_id INTO l_activity_id;
+	END IF;
+	
+	RETURN l_activity_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.fn_set_activity(uuid, bigint, text, integer, integer, integer, text)
+    OWNER TO postgres;
+
+GRANT EXECUTE ON FUNCTION public.fn_set_activity(uuid, bigint, text, integer, integer, integer, text) TO PUBLIC;
+GRANT EXECUTE ON FUNCTION public.fn_set_activity(uuid, bigint, text, integer, integer, integer, text) TO api;
+GRANT EXECUTE ON FUNCTION public.fn_set_activity(uuid, bigint, text, integer, integer, integer, text) TO postgres;
+
+-- Get activities by id
+
+CREATE OR REPLACE FUNCTION public.fn_get_activity(
+	p_user_account_id uuid,
+	p_activity_id bigint)
+    RETURNS TABLE(activity_id bigint, title text, category text, duration_minutes integer, difficulty text, content text, created_timestamp timestamp without time zone) 
+    LANGUAGE 'sql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+
+SELECT 
+	a.activity_id,
+	a.title,
+	ac.name as category,
+	a.duration_minutes,
+	ad.name as difficulty,
+	a.content,
+	a.created_timestamp
+FROM activity a
+INNER JOIN activity_category ac ON a.activity_category_id = ac.activity_category_id
+INNER JOIN activity_difficulty ad ON a.activity_difficulty_id = ad.activity_difficulty_id
+WHERE
+	a.activity_id = p_activity_id
+	-- Ensures data is only returned for admins...
+	AND EXISTS(SELECT * FROM user_account WHERE user_account_id = p_user_account_id AND is_admin=true)
+ORDER BY
+	ac.name;	
+
+$BODY$;
+
+
+ALTER FUNCTION public.fn_get_activity(uuid, bigint)
+    OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.fn_get_activity(uuid, bigint) TO PUBLIC;
+GRANT EXECUTE ON FUNCTION public.fn_get_activity(uuid, bigint) TO api;
+GRANT EXECUTE ON FUNCTION public.fn_get_activity(uuid, bigint) TO postgres;
+
+-- delete activity
+CREATE OR REPLACE FUNCTION public.fn_delete_activity(
+	p_user_account_id uuid,
+	p_activity_id bigint)
+    RETURNS bool
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+	success bool = false;
+BEGIN
+	-- Check that this user is an admin
+	IF( NOT EXISTS(SELECT * FROM user_account WHERE user_account_id = p_user_account_id AND is_admin=true) )THEN
+		RETURN false;
+	END IF;
+	
+	DELETE FROM activity WHERE activity_id = p_activity_id;
+
+	SELECT true INTO success;
+	
+	RETURN success;
+END;
+$BODY$;
+
+ALTER FUNCTION public.fn_delete_activity(uuid, bigint)
+    OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.fn_delete_activity(uuid, bigint) TO PUBLIC;
+GRANT EXECUTE ON FUNCTION public.fn_delete_activity(uuid, bigint) TO api;
+GRANT EXECUTE ON FUNCTION public.fn_delete_activity(uuid, bigint) TO postgres;
 

@@ -1,6 +1,5 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-const jwt = require("jsonwebtoken");
 const activityController = require("../controllers/activity");
 const { param, validationResult } = require("express-validator");
 
@@ -30,7 +29,7 @@ router.get("/activities", auth, async (req, res) => {
 
 /**
  * @swagger
- * /activity/{activityId}/complete:
+ * /user/{activityId}:
  *  put:
  *    summary: Marks an activity as completed for the user
  *    description: This endpoint is used to mark an activity as completed for the user
@@ -52,7 +51,7 @@ router.get("/activities", auth, async (req, res) => {
  *        description: Unauthorized
  *  */
 router.put(
-  "/activity/:activityId/complete",
+  "/user/:activityId",
   auth,
   [param("activityId").isNumeric().withMessage("activityId must be a valid number")],
   async (req, res) => {
@@ -81,7 +80,7 @@ router.put(
 
 /**
  * @swagger
- * /completedActivities:
+ * /user/completed:
  *  get:
  *    summary: Lists all activities that a user has completed
  *    description: This endpoint is used to list all activities that a user has completed
@@ -93,7 +92,7 @@ router.put(
  *      401:
  *        description: Unauthorized
  *  */
-router.get("/completedActivities", auth, async (req, res) => {
+router.get("/user/completed", auth, async (req, res) => {
   try {
     // Set the activity as completed
     await activityController.getCompletedActivities(req, res, req.user.userAccountId);

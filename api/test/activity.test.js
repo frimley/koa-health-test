@@ -40,12 +40,12 @@ describe("Activity Endpoints", () => {
     expect(resToken.body).to.have.property("token").length.to.greaterThan(1);
     const token = resToken.body.token;
 
-    const result = await request(app).put("/activity/1/complete").set("Authorization", `Bearer ${token}`).send();
+    const result = await request(app).put("/user/1").set("Authorization", `Bearer ${token}`).send();
     expect(result.statusCode).to.equal(common.httpCodes.CREATED);
   });
 
   it("an activity CANNOT be set as completed by a user not logged in", async () => {
-    const result = await request(app).put("/activity/1/complete").send();
+    const result = await request(app).put("/user/1").send();
     expect(result.statusCode).to.equal(common.httpCodes.UNAUTHORIZED);
   });
 
@@ -56,13 +56,13 @@ describe("Activity Endpoints", () => {
     expect(resToken.body).to.have.property("token").length.to.greaterThan(1);
     const token = resToken.body.token;
 
-    const result = await request(app).get("/completedActivities").set("Authorization", `Bearer ${token}`).send();
+    const result = await request(app).get("/user/completed").set("Authorization", `Bearer ${token}`).send();
     expect(result.statusCode).to.equal(common.httpCodes.OK);
     expect(result.body).to.have.property("activities").to.be.an("array");
   });
 
   it("completed activities CANNOT be retrieved by a user not logged in", async () => {
-    const result = await request(app).get("/completedActivities").send();
+    const result = await request(app).get("/user/completed").send();
     expect(result.statusCode).to.equal(common.httpCodes.UNAUTHORIZED);
   });
 });

@@ -43,3 +43,78 @@ exports.getCompletedActivities = async (req, res, userAccountId) => {
   // Response activity data
   res.status(common.httpCodes.OK).send({ activities: result.rows });
 };
+
+// Name: setActivity
+// Description: Creates/updates an activity if the user is authorized as an admin
+exports.setActivity = async (
+  req,
+  res,
+  activityId,
+  userAccountId,
+  title,
+  activityCategoryId,
+  durationMinutes,
+  activityDifficultyId,
+  content,
+) => {
+  const result = await db.query(
+    "SELECT * FROM fn_set_activity($1, $2, $3, $4, $5, $6, $7);",
+    [userAccountId, activityId, title, activityCategoryId, durationMinutes, activityDifficultyId, content],
+    (error, results) => {
+      if (error) {
+        common.sendResponse(res, common.httpCodes.INTERNAL_SERVER_ERROR, error.message);
+      }
+    },
+  );
+
+  if (result.rows[0].fn_set_activity === "0") {
+    common.sendResponse(res, common.httpCodes.UNAUTHORIZED, "Not authorized to create/update activity");
+    return false;
+  }
+  // Response that completion was successful
+  res
+    .status(common.httpCodes.CREATED)
+    .send({ message: "Activity created/updated", activityId: result.rows[0].fn_set_activity });
+};
+
+// Name: getActivity
+// Description: Returns all activities available
+exports.getActivity = async (req, res, activityId, userAccountId) => {
+  const result = await db.query(
+    "SELECT * FROM fn_get_activity($1, $2);",
+    [userAccountId, activityId],
+    (error, results) => {
+      if (error) {
+        common.sendResponse(res, common.httpCodes.INTERNAL_SERVER_ERROR, error.message);
+      }
+    },
+  );
+  if (result.rows.length === 0) {
+    common.sendResponse(res, common.httpCodes.UNAUTHORIZED, "Activity could not be retrieved");
+    return false;
+  }
+
+  // Response activity data
+  res.status(common.httpCodes.OK).send({ activity: result.rows[0] });
+};
+
+// Name: deleteActivity
+// Description: Deletes an activity if the user is authorized as an admin
+exports.deleteActivity = async (req, res, activityId, userAccountId) => {
+  const result = await db.query(
+    "SELECT * FROM fn_delete_activity($1, $2);",
+    [userAccountId, activityId],
+    (error, results) => {
+      if (error) {
+        common.sendResponse(res, common.httpCodes.INTERNAL_SERVER_ERROR, error.message);
+      }
+    },
+  );
+
+  if (result.rows[0].fn_set_activity === false) {
+    common.sendResponse(res, common.httpCodes.UNAUTHORIZED, "Not authorized to delete activity");
+    return false;
+  }
+  // Response that completion was successful
+  res.status(common.httpCodes.NO_CONTENT).send({ message: "Activity deleted" });
+};

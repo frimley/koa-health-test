@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const common = require("../common");
 
+require("dotenv").config();
+
 module.exports = (req, res, next) => {
   // check the header for the presence of an authorization field
   if (!req.header("authorization")) {

@@ -1,13 +1,11 @@
 const express = require("express");
-const dotenv = require("dotenv");
 const routesUser = require("./routes/user");
 const routesActivity = require("./routes/activity");
+const routesAdmin = require("./routes/admin");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDefinition = require("../swagger.json");
-
-// Load config values from .env file
-dotenv.config();
+const common = require("./common");
 
 const app = express();
 app.use(express.json());
@@ -15,8 +13,9 @@ app.use(express.json());
 // Add routes
 app.use(routesUser);
 app.use(routesActivity);
+app.use(routesAdmin);
 
-// swagger configuration
+// Swagger configuration
 const options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
@@ -24,6 +23,11 @@ const options = {
 };
 const swaggerSpec = swaggerJSDoc(options);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Handle 404s
+app.get("*", (req, res) => {
+  common.sendResponse(res, common.httpCodes.NOT_FOUND, "Resource not found");
+});
 
 // Bind to port
 const PORT = process.env.PORT || 3000;

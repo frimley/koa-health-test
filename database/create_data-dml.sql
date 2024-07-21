@@ -1,9 +1,14 @@
+-- Create an admin account that can manage the activities
+INSERT INTO user_account (username, password, is_admin) VALUES ('admin16180', crypt('pass16180', gen_salt('md5')), true);
+
+-- Create categories
 INSERT INTO activity_category (activity_category_id, name) VALUES (1, 'Relaxation');
 INSERT INTO activity_category (activity_category_id, name) VALUES (2, 'Self-Esteem');
 INSERT INTO activity_category (activity_category_id, name) VALUES (3, 'Productivity');
 INSERT INTO activity_category (activity_category_id, name) VALUES (4, 'Physical Health');
 INSERT INTO activity_category (activity_category_id, name) VALUES (5, 'Social Connection');
 
+-- Create difficulties
 INSERT INTO activity_difficulty (activity_difficulty_id, name) VALUES (1, 'EASY');
 INSERT INTO activity_difficulty (activity_difficulty_id, name) VALUES (2, 'MEDIUM');
 INSERT INTO activity_difficulty (activity_difficulty_id, name) VALUES (3, 'DIFFICULT');
