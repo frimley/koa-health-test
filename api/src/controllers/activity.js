@@ -27,7 +27,7 @@ exports.setActivityCompleted = async (req, res, userAccountId, activityId) => {
     },
   );
 
-  // Reponse that completion was successful
+  // Response that completion was successful
   common.sendResponse(res, common.httpCodes.CREATED, "Activity set as completed");
 };
 
@@ -78,7 +78,7 @@ exports.setActivity = async (
 };
 
 // Name: getActivity
-// Description: Returns all activities available
+// Description: Returns an activity if the user is authorized as an admin
 exports.getActivity = async (req, res, activityId, userAccountId) => {
   const result = await db.query(
     "SELECT * FROM fn_get_activity($1, $2);",

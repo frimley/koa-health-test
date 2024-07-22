@@ -6,7 +6,6 @@ require("dotenv").config(); // Load config values
 // Name: registerUser
 // Description: Registers a new user and responses a JWT token encapsulating the account user Id (uuid) if successful
 exports.registerUser = async (req, res) => {
-  // If validation is successful, add new user
   const { username, email, password } = req.body;
   const result = await db.query(
     "SELECT * FROM fn_user_register($1, $2, $3);",
@@ -28,7 +27,7 @@ exports.registerUser = async (req, res) => {
   // Now sign user account Id with JWT so this registered user is automatically authenticated from here on
   const token = common.signToken(userAccountId);
 
-  // Reponse success with token
+  // Response success with token
   common.sendResponse(res, common.httpCodes.CREATED, "User registered", token);
 };
 
@@ -52,6 +51,6 @@ exports.loginUser = async (req, res) => {
   // Now sign user account Id with JWT
   const token = common.signToken(userAccountId);
 
-  // Reponse success with token
+  // Response success with token
   common.sendResponse(res, common.httpCodes.OK, "User logged in", token);
 };
